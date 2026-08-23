@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConfig, setConfig, hashPassword } from "../../_lib/db.js";
-import { verifyToken } from "../../_lib/auth.js";
+import { getConfig, setConfig, hashPassword } from "../../db.js";
+import { verifyToken } from "../../auth.js";
 
 export async function handleAdminChangePassword(req: VercelRequest, res: VercelResponse) {
   const token = req.headers.authorization?.replace("Bearer ", "");

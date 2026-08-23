@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb } from "../_lib/db.js";
-import { normalizeMalaysianMobile } from "../_lib/phone.js";
+import { getDb } from "../db.js";
+import { normalizeMalaysianMobile } from "../phone.js";
 
 export async function handleCancelAppointment(req: VercelRequest, res: VercelResponse, id: string) {
   const { clientPhone } = req.body ?? {};

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConfig, hashPassword } from "../../_lib/db.js";
-import { signToken } from "../../_lib/auth.js";
+import { getConfig, hashPassword } from "../../db.js";
+import { signToken } from "../../auth.js";
 
 export async function handleAdminLogin(req: VercelRequest, res: VercelResponse) {
   const { password } = req.body ?? {};

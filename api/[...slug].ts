@@ -1,17 +1,17 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { ensureSchema, seed } from "./_lib/db.js";
-import { handleHealth } from "./routes/health.js";
-import { handleServices, handleStylists, handleTimeSlots } from "./routes/public.js";
-import { handleAvailability } from "./routes/availability.js";
-import { handleAppointments } from "./routes/appointments.js";
-import { handleCancelAppointment } from "./routes/cancel.js";
-import { handleAdminLogin } from "./routes/admin/login.js";
-import { handleAdminChangePassword } from "./routes/admin/change-password.js";
-import { handleAdminResetPassword } from "./routes/admin/reset-password.js";
-import { handleAdminRecoveryKey } from "./routes/admin/recovery-key.js";
-import { handleAdminServices } from "./routes/admin/services.js";
-import { handleAdminStylists } from "./routes/admin/stylists.js";
-import { handleAdminTimeSlots } from "./routes/admin/time-slots.js";
+import { ensureSchema, seed } from "../lib/db.js";
+import { handleHealth } from "../lib/routes/health.js";
+import { handleServices, handleStylists, handleTimeSlots } from "../lib/routes/public.js";
+import { handleAvailability } from "../lib/routes/availability.js";
+import { handleAppointments } from "../lib/routes/appointments.js";
+import { handleCancelAppointment } from "../lib/routes/cancel.js";
+import { handleAdminLogin } from "../lib/routes/admin/login.js";
+import { handleAdminChangePassword } from "../lib/routes/admin/change-password.js";
+import { handleAdminResetPassword } from "../lib/routes/admin/reset-password.js";
+import { handleAdminRecoveryKey } from "../lib/routes/admin/recovery-key.js";
+import { handleAdminServices } from "../lib/routes/admin/services.js";
+import { handleAdminStylists } from "../lib/routes/admin/stylists.js";
+import { handleAdminTimeSlots } from "../lib/routes/admin/time-slots.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");

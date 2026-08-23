@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { ensureSchema, seed, getDb } from "./api/_lib/db.js";
+import { ensureSchema, seed, getDb } from "./lib/db.js";
 
 async function main() {
   console.log("Connecting to Turso...");

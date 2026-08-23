@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb } from "../_lib/db.js";
+import { getDb } from "../db.js";
 
 export async function handleAvailability(req: VercelRequest, res: VercelResponse) {
   const { date, stylistId } = req.query as { date?: string; stylistId?: string };

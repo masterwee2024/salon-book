@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomUUID } from "crypto";
-import { getDb } from "../_lib/db.js";
-import { isValidMalaysianMobile, normalizeMalaysianMobile } from "../_lib/phone.js";
+import { getDb } from "../db.js";
+import { isValidMalaysianMobile, normalizeMalaysianMobile } from "../phone.js";
 
 export async function handleAppointments(req: VercelRequest, res: VercelResponse) {
   const db = getDb();

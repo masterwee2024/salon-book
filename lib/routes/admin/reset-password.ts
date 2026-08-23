@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConfig, setConfig, hashPassword } from "../../_lib/db.js";
+import { getConfig, setConfig, hashPassword } from "../../db.js";
 
 export async function handleAdminResetPassword(req: VercelRequest, res: VercelResponse) {
   const { recoveryKey, newPassword } = req.body ?? {};

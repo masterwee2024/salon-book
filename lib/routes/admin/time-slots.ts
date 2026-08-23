@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomUUID } from "crypto";
-import { getDb } from "../../_lib/db.js";
-import { verifyToken } from "../../_lib/auth.js";
+import { getDb } from "../../db.js";
+import { verifyToken } from "../../auth.js";
 
 export async function handleAdminTimeSlots(req: VercelRequest, res: VercelResponse) {
   const token = req.headers.authorization?.replace("Bearer ", "");

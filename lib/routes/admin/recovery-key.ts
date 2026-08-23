@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConfig } from "../../_lib/db.js";
-import { verifyToken } from "../../_lib/auth.js";
+import { getConfig } from "../../db.js";
+import { verifyToken } from "../../auth.js";
 
 export async function handleAdminRecoveryKey(req: VercelRequest, res: VercelResponse) {
   const token = req.headers.authorization?.replace("Bearer ", "");
