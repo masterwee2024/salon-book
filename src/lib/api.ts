@@ -92,6 +92,22 @@ export async function adminDeleteService(token: string, id: string): Promise<voi
   await request(`/api/admin/services/${id}`, { method: "DELETE", headers: adminHeaders(token) });
 }
 
+export async function adminUploadImage(token: string, file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/admin/upload", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error || `Upload failed (${res.status})`);
+  }
+  const data = (await res.json()) as { url: string };
+  return data.url;
+}
+
 export async function adminGetStylists(token: string): Promise<Stylist[]> {
   return (await request<{ stylists: Stylist[] }>("/api/admin/stylists", { headers: adminHeaders(token) })).stylists;
 }

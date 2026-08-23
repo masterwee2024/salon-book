@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useAdminAuth } from "../../components/AdminAuthProvider";
 import { Stylist } from "../../types";
-import { adminGetStylists, adminCreateStylist, adminUpdateStylist, adminDeleteStylist } from "../../lib/api";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { adminGetStylists, adminCreateStylist, adminUpdateStylist, adminDeleteStylist, adminUploadImage } from "../../lib/api";
+import { Plus, Pencil, Trash2, X, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export function StylistsTab() {
@@ -31,6 +31,23 @@ export function StylistsTab() {
     setEditing(s);
     setForm({ name: s.name, specialties: s.specialties, photoUrl: s.photoUrl ?? "", bio: s.bio ?? "" });
     setShowForm(true);
+  }
+
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploading(true);
+    try {
+      const url = await adminUploadImage(token, file);
+      setForm((prev) => ({ ...prev, photoUrl: url }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }
 
   async function handleSave() {
@@ -107,10 +124,18 @@ export function StylistsTab() {
                 <input value={form.specialties} onChange={(e) => setForm({ ...form, specialties: e.target.value })}
                   placeholder="Specialties (comma-separated)"
                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
-                <input value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-                  placeholder="Photo URL (https://...)"
-                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
-                {form.photoUrl && <img src={form.photoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border border-slate-200 dark:border-slate-600" onError={(e) => (e.currentTarget.style.display = "none")} />}
+                <div className="space-y-2">
+                  <label className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">
+                    <Upload className="w-4 h-4" />
+                    <span>{uploading ? "Uploading..." : "Upload photo to public/images"}</span>
+                    <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} className="hidden" />
+                  </label>
+                  <input value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+                    placeholder="Or paste photo URL / will be /images/xxx.jpg after upload"
+                     className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 text-sm" />
+                  {form.photoUrl && <img src={form.photoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border border-slate-200 dark:border-slate-600" onError={(e) => (e.currentTarget.style.display = "none")} />}
+                  <p className="text-xs text-slate-400 dark:text-slate-500">On Vercel the file is stored ephemerally in <code>public/images</code> (or <code>/tmp</code>); for permanent production storage use Vercel Blob or commit the file to the repo.</p>
+                </div>
                 <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Brief profile / bio" rows={3}
                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 resize-none" />
               </div>
