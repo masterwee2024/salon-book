@@ -20,6 +20,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === "OPTIONS") return res.status(200).end();
 
+  // Parse body for POST/PUT/PATCH requests
+  if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+    if (!req.body) {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      const raw = Buffer.concat(chunks).toString();
+      try { req.body = JSON.parse(raw); } catch { req.body = {}; }
+    }
+  }
+
   await ensureSchema();
   await seed();
 
