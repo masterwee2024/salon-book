@@ -1,0 +1,72 @@
+- generic [ref=f8e84]:
+  - banner [ref=f8e85]:
+    - generic [ref=f8e86]:
+      - heading "Admin Dashboard" [level=1] [ref=f8e87]
+      - button "Logout" [ref=f8e88]
+    - generic [ref=f8e93]:
+      - button "Schedule" [active] [ref=f8e94]
+      - button "Services" [ref=f8e98]
+      - button "Stylists" [ref=f8e106]
+      - button "Time Slots" [ref=f8e111]
+      - button "Settings" [ref=f8e116]
+  - main [ref=f8e121]:
+    - generic [ref=f8e181]:
+      - generic [ref=f8e182]:
+        - generic [ref=f8e183]:
+          - paragraph [ref=f8e184]: Stylist workspace
+          - heading "Schedule" [level=2] [ref=f8e185]
+        - combobox "Stylist schedule" [ref=f8e186]:
+          - option "Priya" [selected]
+          - option "Siti"
+          - option "Wei Ming"
+      - generic [ref=f8e187]:
+        - generic [ref=f8e188]:
+          - generic [ref=f8e189]:
+            - heading "Aug 23 – Aug 29, 2026" [level=3] [ref=f8e190]
+            - paragraph [ref=f8e191]: Priya · Weekly
+          - generic [ref=f8e192]:
+            - button "Previous week" [ref=f8e193]
+            - button "Today" [ref=f8e196]
+            - button "Next week" [ref=f8e197]
+        - generic [ref=f8e200]:
+          - generic [ref=f8e201]: Sun
+          - generic [ref=f8e202]: Mon
+          - generic [ref=f8e203]: Tue
+          - generic [ref=f8e204]: Wed
+          - generic [ref=f8e205]: Thu
+          - generic [ref=f8e206]: Fri
+          - generic [ref=f8e207]: Sat
+        - generic [ref=f8e208]:
+          - button "Sun 23 ·" [ref=f8e209]:
+            - generic [ref=f8e210]: Sun
+            - generic [ref=f8e211]: "23"
+            - generic [ref=f8e212]: ·
+          - button "Mon 24 1" [ref=f8e213]:
+            - generic [ref=f8e214]: Mon
+            - generic [ref=f8e215]: "24"
+            - generic [ref=f8e218]: "1"
+          - button "Tue 25 ·" [ref=f8e219]:
+            - generic [ref=f8e220]: Tue
+            - generic [ref=f8e221]: "25"
+            - generic [ref=f8e222]: ·
+          - button "Wed 26 ·" [ref=f8e223]:
+            - generic [ref=f8e224]: Wed
+            - generic [ref=f8e225]: "26"
+            - generic [ref=f8e226]: ·
+          - button "Thu 27 ·" [ref=f8e227]:
+            - generic [ref=f8e228]: Thu
+            - generic [ref=f8e229]: "27"
+            - generic [ref=f8e230]: ·
+          - button "Fri 28 ·" [ref=f8e231]:
+            - generic [ref=f8e232]: Fri
+            - generic [ref=f8e233]: "28"
+            - generic [ref=f8e234]: ·
+          - button "Sat 29 ·" [ref=f8e235]:
+            - generic [ref=f8e236]: Sat
+            - generic [ref=f8e237]: "29"
+            - generic [ref=f8e238]: ·
+      - generic [ref=f8e239]:
+        - generic [ref=f8e241]:
+          - heading "Sunday, Aug 23" [level=3] [ref=f8e242]
+          - paragraph [ref=f8e243]: No appointments
+        - paragraph [ref=f8e250]: A clear day for Priya.

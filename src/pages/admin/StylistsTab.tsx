@@ -11,7 +11,7 @@ export function StylistsTab() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Stylist | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", specialties: "" });
+  const [form, setForm] = useState({ name: "", specialties: "", photoUrl: "", bio: "" });
 
   async function load() {
     if (!token) return;
@@ -23,13 +23,13 @@ export function StylistsTab() {
 
   function openNew() {
     setEditing(null);
-    setForm({ name: "", specialties: "" });
+    setForm({ name: "", specialties: "", photoUrl: "", bio: "" });
     setShowForm(true);
   }
 
   function openEdit(s: Stylist) {
     setEditing(s);
-    setForm({ name: s.name, specialties: s.specialties });
+    setForm({ name: s.name, specialties: s.specialties, photoUrl: s.photoUrl ?? "", bio: s.bio ?? "" });
     setShowForm(true);
   }
 
@@ -68,12 +68,17 @@ export function StylistsTab() {
           {stylists.map((s) => (
              <div key={s.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
               <div className="flex items-center space-x-3 min-w-0">
-                 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-200 font-medium">
-                  {s.name.charAt(0)}
-                </div>
+                {s.photoUrl ? (
+                  <img src={s.photoUrl} alt={s.name} className="w-12 h-12 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-600" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-200 font-medium">
+                    {s.name.charAt(0)}
+                  </div>
+                )}
                 <div className="min-w-0">
                    <h3 className="font-medium text-slate-900 dark:text-white">{s.name}</h3>
                    {s.specialties && <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{s.specialties}</p>}
+                   {s.bio && <p className="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[180px]">{s.bio}</p>}
                 </div>
               </div>
               <div className="flex items-center space-x-2 shrink-0 ml-4">
@@ -102,6 +107,12 @@ export function StylistsTab() {
                 <input value={form.specialties} onChange={(e) => setForm({ ...form, specialties: e.target.value })}
                   placeholder="Specialties (comma-separated)"
                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
+                <input value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+                  placeholder="Photo URL (https://...)"
+                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
+                {form.photoUrl && <img src={form.photoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border border-slate-200 dark:border-slate-600" onError={(e) => (e.currentTarget.style.display = "none")} />}
+                <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Brief profile / bio" rows={3}
+                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 resize-none" />
               </div>
               <div className="flex space-x-3 mt-4">
                  <button onClick={() => setShowForm(false)} className="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm">Cancel</button>

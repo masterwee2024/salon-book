@@ -35,7 +35,9 @@ export async function ensureSchema() {
     CREATE TABLE IF NOT EXISTS stylists (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      specialties TEXT NOT NULL DEFAULT ''
+      specialties TEXT NOT NULL DEFAULT '',
+      photoUrl TEXT NOT NULL DEFAULT '',
+      bio TEXT NOT NULL DEFAULT ''
     );
 
     CREATE TABLE IF NOT EXISTS time_slots (
@@ -68,6 +70,10 @@ export async function ensureSchema() {
     CREATE INDEX IF NOT EXISTS idx_appointments_stylist ON appointments(stylistId, date, time);
   `);
 
+  // lightweight migrations for existing DBs
+  try { await db.execute("ALTER TABLE stylists ADD COLUMN photoUrl TEXT NOT NULL DEFAULT ''"); } catch {}
+  try { await db.execute("ALTER TABLE stylists ADD COLUMN bio TEXT NOT NULL DEFAULT ''"); } catch {}
+
   schemaReady = true;
 }
 
@@ -92,9 +98,9 @@ const INITIAL_SERVICES = [
 ];
 
 const INITIAL_STYLISTS = [
-  { name: "Siti", specialties: "Women's Haircut, Balayage, Root Touch-up" },
-  { name: "Wei Ming", specialties: "Men's Haircut, Women's Haircut" },
-  { name: "Priya", specialties: "Balayage, Root Touch-up, Women's Haircut" },
+  { name: "Siti", specialties: "Women's Haircut, Balayage, Root Touch-up", photoUrl: "", bio: "Balayage specialist with 8 years at Vogue Salon." },
+  { name: "Wei Ming", specialties: "Men's Haircut, Women's Haircut", photoUrl: "", bio: "Precision cuts and modern styling for every client." },
+  { name: "Priya", specialties: "Balayage, Root Touch-up, Women's Haircut", photoUrl: "", bio: "Color expert focused on natural, low-maintenance looks." },
 ];
 
 const INITIAL_SLOTS = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
@@ -119,8 +125,8 @@ export async function seed() {
   if (styCount === 0) {
     for (const s of INITIAL_STYLISTS) {
       await db.execute({
-        sql: "INSERT INTO stylists (id, name, specialties) VALUES (?, ?, ?)",
-        args: [randomUUID(), s.name, s.specialties],
+        sql: "INSERT INTO stylists (id, name, specialties, photoUrl, bio) VALUES (?, ?, ?, ?, ?)",
+        args: [randomUUID(), s.name, s.specialties, s.photoUrl, s.bio],
       });
     }
   }

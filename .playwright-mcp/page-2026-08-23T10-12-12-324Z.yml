@@ -1,0 +1,34 @@
+- generic [ref=f2e137]:
+  - generic [ref=f2e169]:
+    - generic [ref=f2e170]:
+      - heading "Select Service" [level=1] [ref=f2e171]
+      - paragraph [ref=f2e172]: What can we do for you today?
+    - generic [ref=f2e174]:
+      - button "Balayage RM 220 Hand-painted highlights for a natural look. 180 min" [ref=f2e175]:
+        - generic [ref=f2e176]:
+          - heading "Balayage" [level=3] [ref=f2e177]
+          - generic [ref=f2e178]: RM 220
+        - paragraph [ref=f2e179]: Hand-painted highlights for a natural look.
+        - generic [ref=f2e180]: 180 min
+      - button "Men's Haircut RM 45 Classic or modern cut with hot towel finish. 45 min" [ref=f2e185]:
+        - generic [ref=f2e186]:
+          - heading "Men's Haircut" [level=3] [ref=f2e187]
+          - generic [ref=f2e188]: RM 45
+        - paragraph [ref=f2e189]: Classic or modern cut with hot towel finish.
+        - generic [ref=f2e190]: 45 min
+      - button "Root Touch-up RM 95 Color application to the regrowth area only. 90 min" [ref=f2e195]:
+        - generic [ref=f2e196]:
+          - heading "Root Touch-up" [level=3] [ref=f2e197]
+          - generic [ref=f2e198]: RM 95
+        - paragraph [ref=f2e199]: Color application to the regrowth area only.
+        - generic [ref=f2e200]: 90 min
+      - button "Women's Haircut RM 80 Includes wash, cut, and blowout styling. 60 min" [ref=f2e205]:
+        - generic [ref=f2e206]:
+          - heading "Women's Haircut" [level=3] [ref=f2e207]
+          - generic [ref=f2e208]: RM 80
+        - paragraph [ref=f2e209]: Includes wash, cut, and blowout styling.
+        - generic [ref=f2e210]: 60 min
+  - generic:
+    - button "Home" [ref=f2e155]
+    - button "Book" [active] [ref=f2e160]
+    - button "Profile" [ref=f2e164]

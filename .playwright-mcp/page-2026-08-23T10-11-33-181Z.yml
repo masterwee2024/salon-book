@@ -1,0 +1,34 @@
+- generic [ref=f2e5]:
+  - banner [ref=f2e6]:
+    - generic [ref=f2e7]:
+      - heading "Admin Dashboard" [level=1] [ref=f2e8]
+      - button "Logout" [ref=f2e9]
+    - generic [ref=f2e14]:
+      - button "Services" [ref=f2e15]
+      - button "Stylists" [ref=f2e23]
+      - button "Time Slots" [ref=f2e28]
+      - button "Settings" [active] [ref=f2e33]
+  - main [ref=f2e38]:
+    - generic [ref=f2e98]:
+      - generic [ref=f2e99]:
+        - heading "Change Password" [level=2] [ref=f2e100]
+        - generic [ref=f2e101]:
+          - generic [ref=f2e102]:
+            - textbox "Current password" [ref=f2e103]
+            - button [ref=f2e104]
+          - generic [ref=f2e108]:
+            - textbox "New password (min 4 chars)" [ref=f2e109]
+            - button [ref=f2e110]
+          - textbox "Confirm new password" [ref=f2e114]
+          - button "Update Password" [disabled] [ref=f2e115]
+      - generic [ref=f2e116]:
+        - heading "Recovery Key" [level=2] [ref=f2e117]
+        - generic [ref=f2e118]:
+          - generic [ref=f2e124]:
+            - paragraph [ref=f2e125]: Password Recovery Key
+            - paragraph [ref=f2e126]: Use this key to reset your password if you forget it. Save it somewhere safe.
+          - generic [ref=f2e127]:
+            - generic [ref=f2e128]: ••••••••-••••-••••-••••-••••••••••••
+            - generic [ref=f2e129]:
+              - button [ref=f2e130]
+              - button [ref=f2e134]

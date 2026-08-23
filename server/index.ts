@@ -31,7 +31,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS stylists (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    specialties TEXT NOT NULL DEFAULT ''
+    specialties TEXT NOT NULL DEFAULT '',
+    photoUrl TEXT NOT NULL DEFAULT '',
+    bio TEXT NOT NULL DEFAULT ''
   );
 
   CREATE TABLE IF NOT EXISTS time_slots (
@@ -74,9 +76,9 @@ const INITIAL_SERVICES = [
 ];
 
 const INITIAL_STYLISTS = [
-  { name: "Siti", specialties: "Women's Haircut, Balayage, Root Touch-up" },
-  { name: "Wei Ming", specialties: "Men's Haircut, Women's Haircut" },
-  { name: "Priya", specialties: "Balayage, Root Touch-up, Women's Haircut" },
+  { name: "Siti", specialties: "Women's Haircut, Balayage, Root Touch-up", photoUrl: "", bio: "Balayage specialist with 8 years at Vogue Salon." },
+  { name: "Wei Ming", specialties: "Men's Haircut, Women's Haircut", photoUrl: "", bio: "Precision cuts and modern styling for every client." },
+  { name: "Priya", specialties: "Balayage, Root Touch-up, Women's Haircut", photoUrl: "", bio: "Color expert focused on natural, low-maintenance looks." },
 ];
 
 const INITIAL_SLOTS = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
@@ -97,10 +99,14 @@ function seed() {
     db.transaction(() => { for (const s of INITIAL_SERVICES) ins.run(randomUUID(), s.name, s.duration, s.price, s.description); })();
   }
 
+  // migration for existing DBs
+  try { db.exec("ALTER TABLE stylists ADD COLUMN photoUrl TEXT NOT NULL DEFAULT ''"); } catch {}
+  try { db.exec("ALTER TABLE stylists ADD COLUMN bio TEXT NOT NULL DEFAULT ''"); } catch {}
+
   const styCount = (db.query("SELECT COUNT(*) AS n FROM stylists").get() as { n: number }).n;
   if (styCount === 0) {
-    const ins = db.query("INSERT INTO stylists (id, name, specialties) VALUES (?, ?, ?)");
-    db.transaction(() => { for (const s of INITIAL_STYLISTS) ins.run(randomUUID(), s.name, s.specialties); })();
+    const ins = db.query("INSERT INTO stylists (id, name, specialties, photoUrl, bio) VALUES (?, ?, ?, ?, ?)");
+    db.transaction(() => { for (const s of INITIAL_STYLISTS) ins.run(randomUUID(), s.name, s.specialties, (s as any).photoUrl ?? "", (s as any).bio ?? ""); })();
   }
 
   const slotCount = (db.query("SELECT COUNT(*) AS n FROM time_slots").get() as { n: number }).n;
@@ -270,6 +276,37 @@ app.get("/api/admin/recovery-key", adminAuth, (_req, res) => {
   res.json({ recoveryKey: key });
 });
 
+app.get("/api/admin/appointments", adminAuth, (req, res) => {
+  const from = req.query.from as string; const to = req.query.to as string; const stylistId = req.query.stylistId as string;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from ?? "") || !/^\d{4}-\d{2}-\d{2}$/.test(to ?? "")) return res.status(400).json({ error: "Valid from and to dates are required." });
+  const rows = stylistId
+    ? db.query("SELECT * FROM appointments WHERE date BETWEEN ? AND ? AND stylistId = ? ORDER BY date ASC, time ASC").all(from, to, stylistId)
+    : db.query("SELECT * FROM appointments WHERE date BETWEEN ? AND ? ORDER BY date ASC, time ASC").all(from, to);
+  res.json({ appointments: rows });
+});
+
+app.patch("/api/admin/appointments/:id", adminAuth, (req, res) => {
+  const appt = db.query("SELECT * FROM appointments WHERE id = ?").get(req.params.id) as any;
+  if (!appt) return res.status(404).json({ error: "Not found." });
+  const { status, stylistId } = req.body ?? {};
+  const valid = ["pending","confirmed","cancelled","completed"] as const;
+  let nextStatus = appt.status;
+  if (status !== undefined) { if (!valid.includes(status)) return res.status(400).json({ error: "Invalid status." }); nextStatus = status; }
+  let nextStylistId = appt.stylistId; let nextStylistName = appt.stylistName;
+  if (stylistId !== undefined && stylistId !== appt.stylistId) {
+    const sty = db.query("SELECT * FROM stylists WHERE id = ?").get(stylistId) as any;
+    if (!sty) return res.status(400).json({ error: "Unknown stylist." });
+    if (nextStatus !== "cancelled") {
+      const conflict = db.query("SELECT COUNT(*) as n FROM appointments WHERE date = ? AND time = ? AND stylistId = ? AND status != 'cancelled' AND id != ?").get(appt.date, appt.time, stylistId, req.params.id) as { n:number };
+      if (conflict.n > 0) return res.status(409).json({ error: `${sty.name} is already booked at ${appt.time} on ${appt.date}.` });
+    }
+    nextStylistId = stylistId; nextStylistName = sty.name;
+  }
+  db.query("UPDATE appointments SET status = ?, stylistId = ?, stylistName = ? WHERE id = ?").run(nextStatus, nextStylistId, nextStylistName, req.params.id);
+  const updated = db.query("SELECT * FROM appointments WHERE id = ?").get(req.params.id);
+  res.json({ appointment: updated });
+});
+
 // Services CRUD
 app.get("/api/admin/services", adminAuth, (_req, res) => {
   const services = db.query("SELECT * FROM services ORDER BY name ASC").all();
@@ -308,20 +345,20 @@ app.get("/api/admin/stylists", adminAuth, (_req, res) => {
 });
 
 app.post("/api/admin/stylists", adminAuth, (req, res) => {
-  const { name, specialties } = req.body ?? {};
+  const { name, specialties, photoUrl, bio } = req.body ?? {};
   if (!name) return res.status(400).json({ error: "name is required." });
   const id = randomUUID();
-  db.query("INSERT INTO stylists (id, name, specialties) VALUES (?, ?, ?)").run(id, name, specialties ?? "");
+  db.query("INSERT INTO stylists (id, name, specialties, photoUrl, bio) VALUES (?, ?, ?, ?, ?)").run(id, name, specialties ?? "", photoUrl ?? "", bio ?? "");
   const stylist = db.query("SELECT * FROM stylists WHERE id = ?").get(id);
   res.status(201).json({ stylist });
 });
 
 app.put("/api/admin/stylists/:id", adminAuth, (req, res) => {
-  const { name, specialties } = req.body ?? {};
+  const { name, specialties, photoUrl, bio } = req.body ?? {};
   const existing = db.query("SELECT * FROM stylists WHERE id = ?").get(req.params.id) as any;
   if (!existing) return res.status(404).json({ error: "Not found." });
-  db.query("UPDATE stylists SET name = ?, specialties = ? WHERE id = ?")
-    .run(name ?? existing.name, specialties ?? existing.specialties, req.params.id);
+  db.query("UPDATE stylists SET name = ?, specialties = ?, photoUrl = ?, bio = ? WHERE id = ?")
+    .run(name ?? existing.name, specialties ?? existing.specialties, photoUrl ?? existing.photoUrl ?? "", bio ?? existing.bio ?? "", req.params.id);
   const stylist = db.query("SELECT * FROM stylists WHERE id = ?").get(req.params.id);
   res.json({ stylist });
 });

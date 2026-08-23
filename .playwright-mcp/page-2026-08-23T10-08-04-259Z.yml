@@ -1,0 +1,9 @@
+- generic [ref=e74]:
+  - heading "Admin Login" [level=1] [ref=e79]
+  - paragraph [ref=e80]: Enter the admin password to continue.
+  - textbox "Password" [active] [ref=e81]
+  - generic [ref=e82] [cursor=pointer]:
+    - checkbox "Remember password" [ref=e83]
+    - generic [ref=e84]: Remember password
+  - button "Login" [disabled] [ref=e85]
+  - button "Forgot password?" [ref=e86]

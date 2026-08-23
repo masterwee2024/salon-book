@@ -10,6 +10,8 @@ export interface Stylist {
   id: string;
   name: string;
   specialties: string;
+  photoUrl: string;
+  bio: string;
 }
 
 export interface TimeSlot {

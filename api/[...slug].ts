@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (path === "/admin/change-password" && method === "POST") return handleAdminChangePassword(req, res);
     if (path === "/admin/reset-password" && method === "POST") return handleAdminResetPassword(req, res);
     if (path === "/admin/recovery-key" && method === "GET") return handleAdminRecoveryKey(req, res);
-    if (path === "/admin/appointments") return handleAdminAppointments(req, res);
+    if (path === "/admin/appointments" || path.match(/^\/admin\/appointments\/[^/]+$/)) return handleAdminAppointments(req, res);
     if (path === "/admin/services") return handleAdminServices(req, res);
     if (path.match(/^\/admin\/services\/[^/]+$/)) return handleAdminServices(req, res);
     if (path === "/admin/stylists") return handleAdminStylists(req, res);

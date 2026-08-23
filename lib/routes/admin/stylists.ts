@@ -20,13 +20,13 @@ export async function handleAdminStylists(req: VercelRequest, res: VercelRespons
   }
 
   if (req.method === "POST" && !id) {
-    const { name, specialties } = req.body ?? {};
+    const { name, specialties, photoUrl, bio } = req.body ?? {};
     if (!name) return res.status(400).json({ error: "name is required." });
 
     const newId = randomUUID();
     await db.execute({
-      sql: "INSERT INTO stylists (id, name, specialties) VALUES (?, ?, ?)",
-      args: [newId, name, specialties ?? ""],
+      sql: "INSERT INTO stylists (id, name, specialties, photoUrl, bio) VALUES (?, ?, ?, ?, ?)",
+      args: [newId, name, specialties ?? "", photoUrl ?? "", bio ?? ""],
     });
     const result = await db.execute({ sql: "SELECT * FROM stylists WHERE id = ?", args: [newId] });
     return res.status(201).json({ stylist: result.rows[0] });
@@ -37,11 +37,11 @@ export async function handleAdminStylists(req: VercelRequest, res: VercelRespons
     if (existing.rows.length === 0) return res.status(404).json({ error: "Not found." });
 
     const ex = existing.rows[0] as Record<string, unknown>;
-    const { name, specialties } = req.body ?? {};
+    const { name, specialties, photoUrl, bio } = req.body ?? {};
 
     await db.execute({
-      sql: "UPDATE stylists SET name = ?, specialties = ? WHERE id = ?",
-      args: [name ?? ex.name, specialties ?? ex.specialties, id],
+      sql: "UPDATE stylists SET name = ?, specialties = ?, photoUrl = ?, bio = ? WHERE id = ?",
+      args: [name ?? ex.name, specialties ?? ex.specialties, photoUrl ?? ex.photoUrl ?? "", bio ?? ex.bio ?? "", id],
     });
     const result = await db.execute({ sql: "SELECT * FROM stylists WHERE id = ?", args: [id] });
     return res.status(200).json({ stylist: result.rows[0] });

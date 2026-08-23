@@ -1,0 +1,45 @@
+- generic [ref=f8e84]:
+  - banner [ref=f8e85]:
+    - generic [ref=f8e86]:
+      - heading "Admin Dashboard" [level=1] [ref=f8e87]
+      - button "Logout" [ref=f8e88]
+    - generic [ref=f8e93]:
+      - button "Schedule" [ref=f8e94]
+      - button "Services" [ref=f8e98]
+      - button "Stylists" [ref=f8e106]
+      - button "Time Slots" [ref=f8e111]
+      - button "Settings" [ref=f8e116]
+  - main [ref=f8e121]:
+    - generic [ref=f8e122]:
+      - generic [ref=f8e123]:
+        - heading "Services" [level=2] [ref=f8e124]
+        - button "Add" [ref=f8e125]
+      - generic [ref=f8e128]:
+        - generic [ref=f8e129]:
+          - generic [ref=f8e130]:
+            - heading "Balayage" [level=3] [ref=f8e131]
+            - paragraph [ref=f8e132]: 180 min · RM 220
+          - generic [ref=f8e133]:
+            - button [ref=f8e134]
+            - button [ref=f8e138]
+        - generic [ref=f8e142]:
+          - generic [ref=f8e143]:
+            - heading "Men's Haircut" [level=3] [ref=f8e144]
+            - paragraph [ref=f8e145]: 45 min · RM 45
+          - generic [ref=f8e146]:
+            - button [ref=f8e147]
+            - button [ref=f8e151]
+        - generic [ref=f8e155]:
+          - generic [ref=f8e156]:
+            - heading "Root Touch-up" [level=3] [ref=f8e157]
+            - paragraph [ref=f8e158]: 90 min · RM 95
+          - generic [ref=f8e159]:
+            - button [ref=f8e160]
+            - button [ref=f8e164]
+        - generic [ref=f8e168]:
+          - generic [ref=f8e169]:
+            - heading "Women's Haircut" [level=3] [ref=f8e170]
+            - paragraph [ref=f8e171]: 60 min · RM 80
+          - generic [ref=f8e172]:
+            - button [ref=f8e173]
+            - button [ref=f8e177]

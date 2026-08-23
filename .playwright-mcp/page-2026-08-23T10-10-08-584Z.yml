@@ -1,0 +1,14 @@
+- generic [ref=f1e5]:
+  - banner [ref=f1e6]:
+    - generic [ref=f1e7]:
+      - heading "Admin Dashboard" [level=1] [ref=f1e8]
+      - button "Logout" [ref=f1e9]
+    - generic [ref=f1e14]:
+      - button "Services" [ref=f1e15]
+      - button "Stylists" [ref=f1e23]
+      - button "Time Slots" [ref=f1e28]
+      - button "Settings" [ref=f1e33]
+  - main [ref=f1e38]:
+    - generic [ref=f1e40]:
+      - heading "Services" [level=2] [ref=f1e41]
+      - button "Add" [ref=f1e42]

@@ -1,0 +1,17 @@
+- generic [ref=f3e5]:
+  - generic [ref=f3e6]:
+    - generic [ref=f3e7]:
+      - heading "WELCOME" [level=2] [ref=f3e8]
+      - heading "to Vogue Salon" [level=1] [ref=f3e9]
+    - generic [ref=f3e10]:
+      - button [ref=f3e11]:
+        - heading "Book an Appointment" [level=3] [ref=f3e12]
+        - paragraph [ref=f3e13]: No login needed. Just enter your Malaysian mobile number to book.
+      - heading "Salon Location" [level=3] [ref=f3e14]
+      - generic [ref=f3e20]:
+        - heading "Vogue Salon" [level=4] [ref=f3e21]
+        - paragraph [ref=f3e22]: No. 328, Tabuan Laru Commercial Centre93350 Kuching, SarawakTue-Sat 10AM-8PM, Sun 10AM-6PM
+  - generic:
+    - button "Home" [ref=f3e23]
+    - button "Book" [ref=f3e28]
+    - button "Profile" [ref=f3e32]

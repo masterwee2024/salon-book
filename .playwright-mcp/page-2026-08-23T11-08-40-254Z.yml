@@ -1,0 +1,17 @@
+- generic [ref=f5e5]:
+  - generic [ref=f5e37]:
+    - heading "Guest Mode" [level=1] [ref=f5e42]
+    - paragraph [ref=f5e43]: Enter your Malaysian mobile number to view your booking history.
+    - textbox "012-3456789" [ref=f5e48]
+    - button "View My Bookings" [ref=f5e49]
+    - generic [ref=f5e50]:
+      - paragraph [ref=f5e51]: Theme
+      - generic [ref=f5e52]:
+        - button "Light theme" [ref=f5e53]
+        - button "Dark theme" [ref=f5e60]
+        - button "System theme" [ref=f5e63]
+    - button "Admin" [ref=f5e66]
+  - generic:
+    - button "Home" [ref=f5e23]
+    - button "Book" [ref=f5e28]
+    - button "Profile" [active] [ref=f5e32]

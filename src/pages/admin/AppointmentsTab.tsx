@@ -3,7 +3,7 @@ import { addWeeks, eachDayOfInterval, endOfWeek, format, isSameDay, startOfToday
 import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone } from "lucide-react";
 import { useAdminAuth } from "../../components/AdminAuthProvider";
 import { Appointment, Stylist } from "../../types";
-import { adminGetAppointments, adminGetStylists } from "../../lib/api";
+import { adminGetAppointments, adminGetStylists, adminUpdateAppointment } from "../../lib/api";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -128,18 +128,38 @@ export function AppointmentsTab() {
         </div>
         <div className="space-y-3">
           {selectedAppointments.map((appointment) => (
-            <div key={appointment.id} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <div className="w-14 shrink-0 text-center"><p className="text-sm font-medium text-slate-900 dark:text-white">{appointment.time}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">{appointment.status}</p></div>
-              <div className="h-10 w-px bg-slate-100 dark:bg-slate-700" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-slate-900 dark:text-white">{appointment.clientName}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-slate-500 dark:text-slate-400">
-                  <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3 shrink-0" />{appointment.clientPhone}</span>
-                  <span className="text-slate-300 dark:text-slate-600">·</span>
-                  <span className="truncate">{appointment.serviceName}</span>
-                </p>
+            <div key={appointment.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-14 shrink-0 text-center"><p className="text-sm font-medium text-slate-900 dark:text-white">{appointment.time}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">{appointment.status}</p></div>
+                <div className="h-10 w-px bg-slate-100 dark:bg-slate-700" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-slate-900 dark:text-white">{appointment.clientName}</p>
+                  <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                    <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3 shrink-0" />{appointment.clientPhone}</span>
+                    <span className="text-slate-300 dark:text-slate-600">·</span>
+                    <span className="truncate">{appointment.serviceName}</span>
+                  </p>
+                </div>
+                <Clock className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
               </div>
-              <Clock className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
+              <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-700">
+                <select value={appointment.status} onChange={async (e) => {
+                  const next = e.target.value as Appointment["status"];
+                  try { await adminUpdateAppointment(token!, appointment.id, { status: next }); const from = format(weekStart, "yyyy-MM-dd"); const to = format(endOfWeek(weekStart), "yyyy-MM-dd"); setAppointments(await adminGetAppointments(token!, from, to, stylistId)); } catch (err) { alert(err instanceof Error ? err.message : "Failed to update status."); }
+                }} className="flex-1 rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <select value={appointment.stylistId} onChange={async (e) => {
+                  const nextId = e.target.value;
+                  if (nextId === appointment.stylistId) return;
+                  try { await adminUpdateAppointment(token!, appointment.id, { stylistId: nextId }); const from = format(weekStart, "yyyy-MM-dd"); const to = format(endOfWeek(weekStart), "yyyy-MM-dd"); setAppointments(await adminGetAppointments(token!, from, to, stylistId)); } catch (err) { alert(err instanceof Error ? err.message : "Failed to reassign stylist."); }
+                }} className="flex-1 rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                  {stylists.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
             </div>
           ))}
           {!selectedAppointments.length && <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center dark:border-slate-700"><CalendarDays className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" /><p className="mt-2 text-sm text-slate-500 dark:text-slate-400">A clear day for {selectedStylist?.name ?? "this stylist"}.</p></div>}
