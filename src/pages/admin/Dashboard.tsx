@@ -21,8 +21,8 @@ export function AdminDashboard() {
   const [tab, setTab] = useState<string>("services");
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-      <header className="bg-slate-900 dark:bg-slate-950 text-white px-6 pt-10 pb-6">
+    <div className="flex flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-slate-900">
+      <header className="shrink-0 bg-slate-900 dark:bg-slate-950 text-white px-6 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-medium">Admin Dashboard</h1>
           <button onClick={logout} className="flex items-center space-x-2 text-sm text-slate-400 hover:text-white">
@@ -49,7 +49,7 @@ export function AdminDashboard() {
           })}
         </div>
       </header>
-       <main className="flex-1 p-6 bg-slate-50 dark:bg-slate-900">
+      <main className="flex-1 overflow-y-auto bg-slate-50 p-6 pb-28 dark:bg-slate-900">
          {tab === "appointments" && <AppointmentsTab />}
          {tab === "services" && <ServicesTab />}
         {tab === "stylists" && <StylistsTab />}

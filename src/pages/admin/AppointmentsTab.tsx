@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, startOfMonth, startOfToday, startOfWeek, subMonths } from "date-fns";
+import { addWeeks, eachDayOfInterval, endOfWeek, format, isSameDay, startOfToday, startOfWeek, subWeeks } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone } from "lucide-react";
 import { useAdminAuth } from "../../components/AdminAuthProvider";
 import { Appointment, Stylist } from "../../types";
@@ -9,7 +9,7 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function AppointmentsTab() {
   const { token } = useAdminAuth();
-  const [month, setMonth] = useState(startOfMonth(new Date()));
+  const [weekStart, setWeekStart] = useState(startOfWeek(startOfToday()));
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [stylistId, setStylistId] = useState("");
@@ -29,18 +29,18 @@ export function AppointmentsTab() {
     if (!token || !stylistId) return;
     setLoading(true);
     setError(null);
-    const from = format(startOfWeek(startOfMonth(month)), "yyyy-MM-dd");
-    const to = format(endOfWeek(endOfMonth(month)), "yyyy-MM-dd");
+    const from = format(weekStart, "yyyy-MM-dd");
+    const to = format(endOfWeek(weekStart), "yyyy-MM-dd");
     adminGetAppointments(token, from, to, stylistId)
       .then(setAppointments)
       .catch(() => { setAppointments([]); setError("Could not load appointments."); })
       .finally(() => setLoading(false));
-  }, [token, stylistId, month]);
+  }, [token, stylistId, weekStart]);
 
-  const calendarDays = useMemo(() => eachDayOfInterval({
-    start: startOfWeek(startOfMonth(month)),
-    end: endOfWeek(endOfMonth(month)),
-  }), [month]);
+  const weekDays = useMemo(() => eachDayOfInterval({
+    start: weekStart,
+    end: endOfWeek(weekStart),
+  }), [weekStart]);
 
   const byDate = useMemo(() => {
     const grouped = new Map<string, Appointment[]>();
@@ -54,9 +54,16 @@ export function AppointmentsTab() {
   const selectedAppointments = byDate.get(format(selectedDate, "yyyy-MM-dd")) ?? [];
   const selectedStylist = stylists.find((stylist) => stylist.id === stylistId);
 
-  function changeMonth(nextMonth: Date) {
-    setMonth(nextMonth);
-    if (!isSameMonth(selectedDate, nextMonth)) setSelectedDate(startOfMonth(nextMonth));
+  function changeWeek(direction: number) {
+    const nextStart = direction < 0 ? subWeeks(weekStart, 1) : addWeeks(weekStart, 1);
+    setWeekStart(nextStart);
+    setSelectedDate(nextStart);
+  }
+
+  function goToday() {
+    const today = startOfToday();
+    setWeekStart(startOfWeek(today));
+    setSelectedDate(today);
   }
 
   return (
@@ -73,15 +80,15 @@ export function AppointmentsTab() {
       </div>
 
       <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium text-slate-900 dark:text-white">{format(month, "MMMM yyyy")}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{selectedStylist ? `${selectedStylist.name}'s appointments` : "Select a stylist"}</p>
+            <h3 className="text-base font-medium text-slate-900 dark:text-white">{format(weekStart, "MMM d")} – {format(endOfWeek(weekStart), "MMM d, yyyy")}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{selectedStylist ? `${selectedStylist.name} · Weekly` : "Select a stylist"}</p>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => changeMonth(subMonths(month, 1))} aria-label="Previous month" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"><ChevronLeft className="h-4 w-4" /></button>
-            <button onClick={() => { const today = startOfToday(); setMonth(startOfMonth(today)); setSelectedDate(today); }} className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">Today</button>
-            <button onClick={() => changeMonth(addMonths(month, 1))} aria-label="Next month" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"><ChevronRight className="h-4 w-4" /></button>
+            <button onClick={() => changeWeek(-1)} aria-label="Previous week" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"><ChevronLeft className="h-4 w-4" /></button>
+            <button onClick={goToday} className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">Today</button>
+            <button onClick={() => changeWeek(1)} aria-label="Next week" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"><ChevronRight className="h-4 w-4" /></button>
           </div>
         </div>
 
@@ -89,17 +96,20 @@ export function AppointmentsTab() {
           {WEEKDAYS.map((day) => <div key={day} className="text-center text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">{day}</div>)}
         </div>
         <div className="mt-2 grid grid-cols-7 gap-1">
-          {calendarDays.map((day) => {
+          {weekDays.map((day) => {
             const dayAppointments = byDate.get(format(day, "yyyy-MM-dd")) ?? [];
             const selected = isSameDay(day, selectedDate);
+            const isToday = isSameDay(day, startOfToday());
             return (
               <button key={day.toISOString()} onClick={() => setSelectedDate(day)}
-                className={`min-h-14 rounded-xl p-1.5 text-left transition-colors sm:min-h-16 ${selected ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "hover:bg-slate-100 dark:hover:bg-slate-700"} ${!isSameMonth(day, month) ? "opacity-35" : ""}`}>
-                <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${isSameDay(day, startOfToday()) && !selected ? "bg-slate-200 text-slate-900 dark:bg-slate-600 dark:text-white" : ""}`}>{format(day, "d")}</span>
-                <span className="mt-1 flex min-h-3 items-center gap-0.5">
+                className={`flex min-h-[72px] flex-col items-center justify-start rounded-xl p-1.5 text-center transition-colors ${selected ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "hover:bg-slate-100 dark:hover:bg-slate-700"}`}>
+                <span className="text-[10px] font-medium uppercase tracking-wide opacity-70">{format(day, "EEE")}</span>
+                <span className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${selected ? "" : isToday ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "text-slate-900 dark:text-white"}`}>{format(day, "d")}</span>
+                <span className="mt-1.5 flex min-h-3 items-center justify-center gap-0.5">
                   {dayAppointments.slice(0, 3).map((appointment) => <span key={appointment.id} className={`h-1.5 w-1.5 rounded-full ${selected ? "bg-white dark:bg-slate-900" : appointment.status === "cancelled" ? "bg-slate-300 dark:bg-slate-600" : "bg-emerald-500"}`} />)}
                   {dayAppointments.length > 3 && <span className="text-[9px]">+{dayAppointments.length - 3}</span>}
                 </span>
+                <span className="mt-1 text-[10px] font-medium tabular-nums opacity-70">{dayAppointments.length ? `${dayAppointments.length}` : "·"}</span>
               </button>
             );
           })}
