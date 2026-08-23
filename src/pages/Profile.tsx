@@ -127,9 +127,11 @@ function ThemeToggle({ theme, setTheme }: { theme: string; setTheme: (t: "light"
       <div className="flex space-x-2">
         {opts.map(({ id, icon: Icon, label }) => (
           <button key={id} onClick={() => setTheme(id)}
+            aria-label={`${label} theme`}
+            title={`${label} theme`}
             className={cn("flex-1 flex items-center justify-center space-x-1.5 py-2.5 rounded-xl text-sm font-medium transition-colors",
               theme === id ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600")}>
-            <Icon className="w-4 h-4" /><span>{label}</span>
+            <Icon className="w-4 h-4" aria-hidden="true" />
           </button>
         ))}
       </div>
