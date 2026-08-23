@@ -123,19 +123,21 @@ export function Book({ onBooked }: { onBooked: () => void }) {
                 const isSelected = selectedStylist?.id === sty.id;
                 return (
                   <button key={sty.id} onClick={() => { setSelectedStylist(sty); setSelectedTime(null); setStep(4); }}
-                    className={cn("w-full bg-white dark:bg-slate-800 rounded-2xl p-5 border shadow-sm flex items-center space-x-4 transition-colors",
+                    className={cn("w-full bg-white dark:bg-slate-800 rounded-2xl p-4 border shadow-sm flex items-start gap-4 text-left transition-colors",
                       isSelected ? "border-slate-900 dark:border-white bg-slate-50 dark:bg-slate-700" : "border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600")}>
                     {sty.photoUrl ? (
-                      <img src={sty.photoUrl} alt={sty.name} className="w-12 h-12 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-600" />
+                      <img src={sty.photoUrl} alt={sty.name} className="h-24 w-24 shrink-0 rounded-2xl object-cover border-2 border-white shadow-md dark:border-slate-600" />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-200 font-medium text-lg">{sty.name.charAt(0)}</div>
+                      <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-200 to-slate-300 text-2xl font-medium text-slate-600 shadow-inner dark:from-slate-600 dark:to-slate-700 dark:text-slate-200">{sty.name.charAt(0)}</div>
                     )}
-                    <div className="flex-1 text-left min-w-0">
-                      <h3 className="font-medium text-slate-900 dark:text-white">{sty.name}</h3>
-                      {sty.specialties && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">{sty.specialties}</p>}
-                      {sty.bio && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 line-clamp-2">{sty.bio}</p>}
+                    <div className="min-w-0 flex-1 py-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-base font-medium text-slate-900 dark:text-white">{sty.name}</h3>
+                        {isSelected && <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900"><Check className="h-4 w-4" /></span>}
+                      </div>
+                      {sty.specialties && <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{sty.specialties}</p>}
+                      {sty.bio ? <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{sty.bio}</p> : <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">Tap to book with {sty.name.split(" ")[0]}.</p>}
                     </div>
-                    {isSelected && <Check className="w-5 h-5 text-slate-900 dark:text-white shrink-0" />}
                   </button>
                 );
               })}
