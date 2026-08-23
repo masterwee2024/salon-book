@@ -64,15 +64,15 @@ export function SettingsTab() {
     <div className="space-y-8">
       {/* Change Password */}
       <div>
-        <h2 className="text-lg font-medium text-slate-900 mb-4">Change Password</h2>
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
+         <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-4">Change Password</h2>
+         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm space-y-3">
           <div className="relative">
             <input
               type={showCurrent ? "text" : "password"}
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
               placeholder="Current password"
-              className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 outline-none focus:border-slate-400 text-sm"
+               className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 text-sm"
             />
             <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
               {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -84,7 +84,7 @@ export function SettingsTab() {
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               placeholder="New password (min 4 chars)"
-              className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 outline-none focus:border-slate-400 text-sm"
+               className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 text-sm"
             />
             <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
               {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -95,7 +95,7 @@ export function SettingsTab() {
             value={confirmPw}
             onChange={(e) => setConfirmPw(e.target.value)}
             placeholder="Confirm new password"
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-slate-400 text-sm"
+             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 text-sm"
           />
 
           {pwError && <p className="text-sm text-red-500">{pwError}</p>}
@@ -113,32 +113,32 @@ export function SettingsTab() {
 
       {/* Recovery Key */}
       <div>
-        <h2 className="text-lg font-medium text-slate-900 mb-4">Recovery Key</h2>
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+         <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-4">Recovery Key</h2>
+         <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm">
           <div className="flex items-start space-x-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
               <KeyRound className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-700 font-medium">Password Recovery Key</p>
-              <p className="text-xs text-slate-500 mt-0.5">
+               <p className="text-sm text-slate-700 dark:text-slate-200 font-medium">Password Recovery Key</p>
+               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Use this key to reset your password if you forget it. Save it somewhere safe.
               </p>
             </div>
           </div>
 
           {recoveryKey && (
-            <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between">
+             <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 flex items-center justify-between">
               {showRecovery ? (
                 <span className="font-mono text-sm text-slate-900 break-all">{recoveryKey}</span>
               ) : (
                 <span className="font-mono text-sm text-slate-400">••••••••-••••-••••-••••-••••••••••••</span>
               )}
               <div className="flex items-center space-x-1 shrink-0 ml-3">
-                <button onClick={() => setShowRecovery(!showRecovery)} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500">
+                 <button onClick={() => setShowRecovery(!showRecovery)} className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
                   {showRecovery ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-                <button onClick={copyRecoveryKey} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500">
+                 <button onClick={copyRecoveryKey} className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
                   <Shield className="w-4 h-4" />
                 </button>
               </div>

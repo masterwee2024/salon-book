@@ -55,7 +55,7 @@ export function Profile({ onOpenAdmin }: { onOpenAdmin: () => void }) {
 
         <ThemeToggle theme={theme} setTheme={setTheme} />
 
-        <button onClick={onOpenAdmin} className="mt-4 w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400">
+          <button onClick={onOpenAdmin} className="mt-4 w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
           <Shield className="w-5 h-5" /><span className="flex-1 text-left text-sm font-medium">Admin</span>
         </button>
       </div>
@@ -100,13 +100,13 @@ export function Profile({ onOpenAdmin }: { onOpenAdmin: () => void }) {
 
         <div className="mt-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
           <button onClick={() => { clear(); setPhoneInput(""); setTouched(false); }}
-            className="w-full px-5 py-4 flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-750 text-red-600">
+            className="w-full px-5 py-4 flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-red-600">
             <LogOut className="w-5 h-5" /><span className="flex-1 text-left font-medium">Switch Phone Number</span>
           </button>
         </div>
 
         <button onClick={onOpenAdmin}
-          className="mt-4 w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400">
+          className="mt-4 w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
           <Shield className="w-5 h-5" /><span className="flex-1 text-left text-sm font-medium">Admin</span>
         </button>
       </div>

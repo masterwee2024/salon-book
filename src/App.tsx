@@ -13,7 +13,7 @@ function MainView({ onOpenAdmin }: { onOpenAdmin: () => void }) {
   const [currentTab, setCurrentTab] = useState("home");
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 relative">
+    <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900 relative">
       {currentTab === "home" && <Home onBook={() => setCurrentTab("book")} />}
       {currentTab === "book" && <Book onBooked={() => setCurrentTab("home")} />}
       {currentTab === "profile" && <Profile onOpenAdmin={onOpenAdmin} />}
@@ -28,8 +28,8 @@ function AdminGate() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-50">
-        <div className="w-8 h-8 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
+      <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="w-8 h-8 border-4 border-slate-300 dark:border-slate-700 border-t-slate-900 dark:border-t-white rounded-full animate-spin" />
       </div>
     );
   }

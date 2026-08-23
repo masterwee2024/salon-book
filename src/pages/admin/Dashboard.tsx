@@ -19,7 +19,7 @@ export function AdminDashboard() {
   const [tab, setTab] = useState<string>("services");
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <header className="bg-slate-900 dark:bg-slate-950 text-white px-6 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-medium">Admin Dashboard</h1>
@@ -37,7 +37,7 @@ export function AdminDashboard() {
                 onClick={() => setTab(t.id)}
                 className={cn(
                   "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0",
-                  tab === t.id ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"
+                   tab === t.id ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />

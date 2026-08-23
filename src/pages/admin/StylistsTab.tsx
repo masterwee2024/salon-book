@@ -53,7 +53,7 @@ export function StylistsTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-medium text-slate-900">Stylists</h2>
+         <h2 className="text-lg font-medium text-slate-900 dark:text-white">Stylists</h2>
         <button onClick={openNew} className="flex items-center space-x-1 px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium">
           <Plus className="w-4 h-4" /><span>Add</span>
         </button>
@@ -61,24 +61,24 @@ export function StylistsTab() {
 
       {loading ? (
         <div className="animate-pulse space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-slate-200 rounded-2xl" />)}
+           {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl" />)}
         </div>
       ) : (
         <div className="space-y-3">
           {stylists.map((s) => (
-            <div key={s.id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+             <div key={s.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
               <div className="flex items-center space-x-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0 text-slate-600 font-medium">
+                 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-200 font-medium">
                   {s.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-slate-900">{s.name}</h3>
-                  {s.specialties && <p className="text-xs text-slate-500 truncate">{s.specialties}</p>}
+                   <h3 className="font-medium text-slate-900 dark:text-white">{s.name}</h3>
+                   {s.specialties && <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{s.specialties}</p>}
                 </div>
               </div>
               <div className="flex items-center space-x-2 shrink-0 ml-4">
-                <button onClick={() => openEdit(s)} className="p-2 rounded-lg hover:bg-slate-100"><Pencil className="w-4 h-4 text-slate-600" /></button>
-                <button onClick={() => handleDelete(s.id)} className="p-2 rounded-lg hover:bg-red-50"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                 <button onClick={() => openEdit(s)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"><Pencil className="w-4 h-4 text-slate-600 dark:text-slate-300" /></button>
+                 <button onClick={() => handleDelete(s.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40"><Trash2 className="w-4 h-4 text-red-500" /></button>
               </div>
             </div>
           ))}
@@ -90,21 +90,21 @@ export function StylistsTab() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4">
             <motion.div initial={{ y: 50 }} animate={{ y: 0 }} exit={{ y: 50 }}
-              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+               className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-xl">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-slate-900">{editing ? "Edit Stylist" : "New Stylist"}</h3>
-                <button onClick={() => setShowForm(false)} className="p-1"><X className="w-5 h-5 text-slate-400" /></button>
+                 <h3 className="text-lg font-medium text-slate-900 dark:text-white">{editing ? "Edit Stylist" : "New Stylist"}</h3>
+                 <button onClick={() => setShowForm(false)} className="p-1"><X className="w-5 h-5 text-slate-400 dark:text-slate-500" /></button>
               </div>
               <div className="space-y-3">
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Name" autoFocus
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-slate-400" />
+                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
                 <input value={form.specialties} onChange={(e) => setForm({ ...form, specialties: e.target.value })}
                   placeholder="Specialties (comma-separated)"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-slate-400" />
+                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500" />
               </div>
               <div className="flex space-x-3 mt-4">
-                <button onClick={() => setShowForm(false)} className="px-4 py-3 rounded-xl bg-slate-100 text-slate-600 font-medium text-sm">Cancel</button>
+                 <button onClick={() => setShowForm(false)} className="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm">Cancel</button>
                 <button onClick={handleSave} disabled={!form.name}
                   className="flex-1 py-3 rounded-xl bg-slate-900 text-white font-medium text-sm disabled:opacity-50">
                   {editing ? "Save Changes" : "Create"}
