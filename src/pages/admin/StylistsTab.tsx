@@ -134,7 +134,7 @@ export function StylistsTab() {
                     placeholder="Or paste photo URL / will be /images/xxx.jpg after upload"
                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 text-sm" />
                   {form.photoUrl && <img src={form.photoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border border-slate-200 dark:border-slate-600" onError={(e) => (e.currentTarget.style.display = "none")} />}
-                  <p className="text-xs text-slate-400 dark:text-slate-500">On Vercel the file is stored ephemerally in <code>public/images</code> (or <code>/tmp</code>); for permanent production storage use Vercel Blob or commit the file to the repo.</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Stored in <code>public/images</code> locally; on Vercel it uses <code>Vercel Blob</code> (requires <code>BLOB_READ_WRITE_TOKEN</code> from a Blob store) for persistent CDN URLs.</p>
                 </div>
                 <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Brief profile / bio" rows={3}
                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent outline-none focus:border-slate-400 dark:focus:border-slate-500 resize-none" />
