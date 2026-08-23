@@ -96,6 +96,12 @@ export async function adminGetStylists(token: string): Promise<Stylist[]> {
   return (await request<{ stylists: Stylist[] }>("/api/admin/stylists", { headers: adminHeaders(token) })).stylists;
 }
 
+export async function adminGetAppointments(token: string, from: string, to: string, stylistId?: string): Promise<Appointment[]> {
+  const params = new URLSearchParams({ from, to });
+  if (stylistId) params.set("stylistId", stylistId);
+  return (await request<{ appointments: Appointment[] }>(`/api/admin/appointments?${params}`, { headers: adminHeaders(token) })).appointments;
+}
+
 export async function adminCreateStylist(token: string, data: Omit<Stylist, "id">): Promise<Stylist> {
   return (await request<{ stylist: Stylist }>("/api/admin/stylists", {
     method: "POST", headers: adminHeaders(token), body: JSON.stringify(data),

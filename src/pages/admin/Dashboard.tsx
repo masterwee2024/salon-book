@@ -4,10 +4,12 @@ import { ServicesTab } from "./ServicesTab";
 import { StylistsTab } from "./StylistsTab";
 import { TimeSlotsTab } from "./TimeSlotsTab";
 import { SettingsTab } from "./SettingsTab";
-import { Scissors, User, Clock, Settings, LogOut } from "lucide-react";
+import { AppointmentsTab } from "./AppointmentsTab";
+import { Scissors, User, Clock, Settings, LogOut, CalendarDays } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 const TABS = [
+  { id: "appointments", label: "Schedule", icon: CalendarDays },
   { id: "services", label: "Services", icon: Scissors },
   { id: "stylists", label: "Stylists", icon: User },
   { id: "slots", label: "Time Slots", icon: Clock },
@@ -47,8 +49,9 @@ export function AdminDashboard() {
           })}
         </div>
       </header>
-      <main className="flex-1 p-6 bg-slate-50 dark:bg-slate-900">
-        {tab === "services" && <ServicesTab />}
+       <main className="flex-1 p-6 bg-slate-50 dark:bg-slate-900">
+         {tab === "appointments" && <AppointmentsTab />}
+         {tab === "services" && <ServicesTab />}
         {tab === "stylists" && <StylistsTab />}
         {tab === "slots" && <TimeSlotsTab />}
         {tab === "settings" && <SettingsTab />}
