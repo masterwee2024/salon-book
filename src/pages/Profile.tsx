@@ -122,16 +122,16 @@ function ThemeToggle({ theme, setTheme }: { theme: string; setTheme: (t: "light"
   ];
 
   return (
-    <div className="mt-6 mb-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm">
-      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Theme</p>
-      <div className="flex items-center justify-between px-2">
+    <div className="mt-6 mb-2 w-full bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
+      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Theme</p>
+      <div className="flex items-center justify-center gap-8 py-2">
         {opts.map(({ id, icon: Icon, label }) => (
           <button key={id} onClick={() => setTheme(id)}
             aria-label={`${label} theme`}
             title={`${label} theme`}
-            className={cn("flex h-14 w-14 items-center justify-center rounded-2xl p-4 text-sm font-medium transition-colors",
+            className={cn("flex h-16 w-16 items-center justify-center rounded-2xl text-sm font-medium transition-colors shadow-sm",
               theme === id ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600")}>
-            <Icon className="w-4 h-4" aria-hidden="true" />
+            <Icon className="w-5 h-5" aria-hidden="true" />
           </button>
         ))}
       </div>
