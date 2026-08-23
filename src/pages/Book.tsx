@@ -1,185 +1,174 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { useAuth } from "../components/AuthProvider";
-import { Service } from "../types";
+import { useSession } from "../components/SessionProvider";
+import { Service, Stylist } from "../types";
+import { getServices, getStylists, getAvailability, getTimeSlots, createAppointment } from "../lib/api";
 import { format, addDays, startOfToday } from "date-fns";
-import { Check, ChevronRight, Clock } from "lucide-react";
-import { cn } from "../lib/utils";
+import { Clock, Phone, Check } from "lucide-react";
+import { cn, isValidMalaysianMobile, normalizeMalaysianMobile } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
-const INITIAL_SERVICES: Omit<Service, 'id'>[] = [
-  { name: "Women's Haircut", duration: 60, price: 80, description: "Includes wash, cut, and blowout styling." },
-  { name: "Men's Haircut", duration: 45, price: 45, description: "Classic or modern cut with hot towel finish." },
-  { name: "Balayage", duration: 180, price: 220, description: "Hand-painted highlights for a natural look." },
-  { name: "Root Touch-up", duration: 90, price: 95, description: "Color application to the regrowth area only." },
-];
-
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
+const TIME_SLOTS_FALLBACK = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
 export function Book({ onBooked }: { onBooked: () => void }) {
-  const { user } = useAuth();
+  const { phone: sessionPhone, setSession } = useSession();
   const [services, setServices] = useState<Service[]>([]);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [stylists, setStylists] = useState<Stylist[]>([]);
+  const [timeSlots, setTimeSlots] = useState<string[]>(TIME_SLOTS_FALLBACK);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [phone, setPhone] = useState(sessionPhone ?? "");
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [booking, setBooking] = useState(false);
 
   useEffect(() => {
-    async function fetchServices() {
-      const snap = await getDocs(collection(db, "services"));
-      if (snap.empty) {
-        // Seed default services
-        const batch = INITIAL_SERVICES.map(async (svc) => {
-          const docRef = doc(collection(db, "services"));
-          await setDoc(docRef, { ...svc, id: docRef.id });
-          return { ...svc, id: docRef.id };
-        });
-        const saved = await Promise.all(batch);
-        setServices(saved);
-      } else {
-        const svcs: Service[] = [];
-        snap.forEach(doc => svcs.push(doc.data() as Service));
-        setServices(svcs);
-      }
-    }
-    fetchServices();
+    Promise.all([getServices(), getStylists(), getTimeSlots()])
+      .then(([s, st, ts]) => { setServices(s); setStylists(st); if (ts.length > 0) setTimeSlots(ts.map((t) => t.time)); })
+      .catch((e) => console.error(e));
   }, []);
 
+  useEffect(() => {
+    if (!selectedStylist) return;
+    getAvailability(format(selectedDate, 'yyyy-MM-dd'), selectedStylist.id).then(setBookedSlots).catch(() => setBookedSlots([]));
+  }, [selectedDate, selectedStylist]);
+
   const dates = Array.from({ length: 14 }).map((_, i) => addDays(startOfToday(), i));
+  const phoneValid = isValidMalaysianMobile(phone);
+
+  const titles: Record<number, string> = { 1: "Select Service", 2: "Your Contact", 3: "Choose Stylist", 4: "Pick a Time" };
+  const subtitles: Record<number, string> = { 1: "What can we do for you today?", 2: selectedService?.name ?? "", 3: selectedService?.name ?? "", 4: `${selectedStylist?.name ?? ""} · ${selectedService?.name ?? ""}` };
 
   const handleBook = async () => {
-    if (!user || !selectedService || !selectedTime) return;
+    if (!phoneValid || !selectedService || !selectedStylist || !selectedTime) { if (!phoneValid) setStep(2); return; }
     setBooking(true);
-    
     try {
-      await addDoc(collection(db, "appointments"), {
-        clientId: user.id,
-        clientName: user.name || "Guest",
-        serviceId: selectedService.id,
-        serviceName: selectedService.name,
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        time: selectedTime,
-        status: 'pending',
-      });
+      await createAppointment({ clientPhone: phone, serviceId: selectedService.id, stylistId: selectedStylist.id, date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime });
+      setSession(normalizeMalaysianMobile(phone));
       onBooked();
-    } catch (e) {
-      console.error(e);
-      alert("Error booking appointment.");
-    } finally {
-      setBooking(false);
-    }
+    } catch (e) { alert(e instanceof Error ? e.message : "Error booking appointment."); }
+    finally { setBooking(false); }
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 overflow-y-auto pb-8">
-      <div className="bg-white px-6 pt-12 pb-6 border-b border-slate-100 sticky top-0 z-10">
-        <h1 className="text-2xl font-light text-slate-900">
-          {step === 1 ? "Select Service" : "Choose Time"}
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          {step === 1 ? "What can we do for you today?" : selectedService?.name}
-        </p>
+    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900 overflow-y-auto pb-28">
+      <div className="bg-white dark:bg-slate-950 px-6 pt-12 pb-6 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-10">
+        <h1 className="text-2xl font-light text-slate-900 dark:text-white">{titles[step]}</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{subtitles[step]}</p>
       </div>
 
       <div className="p-6">
         <AnimatePresence mode="wait">
-          {step === 1 ? (
-            <motion.div 
-              key="step1"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
-            >
-              {services.map(svc => (
-                <button
-                  key={svc.id}
-                  onClick={() => {
-                    setSelectedService(svc);
-                    setStep(2);
-                  }}
-                  className="w-full bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col text-left hover:border-slate-300 transition-colors"
-                >
+          {step === 1 && (
+            <motion.div key="s1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {services.map((svc) => (
+                <button key={svc.id} onClick={() => { setSelectedService(svc); setStep(2); }}
+                  className="w-full bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col text-left hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                   <div className="flex justify-between items-start w-full">
-                    <h3 className="font-medium text-slate-900">{svc.name}</h3>
-                    <span className="font-medium text-slate-900">${svc.price}</span>
+                    <h3 className="font-medium text-slate-900 dark:text-white">{svc.name}</h3>
+                    <span className="font-medium text-slate-900 dark:text-white">RM {svc.price}</span>
                   </div>
-                  <p className="text-sm text-slate-500 mt-2 pr-4">{svc.description}</p>
-                  <div className="flex items-center space-x-2 mt-4 text-xs font-medium text-slate-400">
-                    <Clock className="w-4 h-4" />
-                    <span>{svc.duration} min</span>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 pr-4">{svc.description}</p>
+                  <div className="flex items-center space-x-2 mt-4 text-xs font-medium text-slate-400 dark:text-slate-500">
+                    <Clock className="w-4 h-4" /><span>{svc.duration} min</span>
                   </div>
                 </button>
               ))}
             </motion.div>
-          ) : (
-            <motion.div 
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-            >
+          )}
+
+          {step === 2 && (
+            <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Mobile Number</label>
+              <div className={cn("flex items-center space-x-3 bg-white dark:bg-slate-800 rounded-2xl border shadow-sm px-4 py-4", phoneTouched && !phoneValid ? "border-red-400" : "border-slate-100 dark:border-slate-700")}>
+                <Phone className="w-5 h-5 text-slate-400 shrink-0" />
+                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => setPhoneTouched(true)} placeholder="012-3456789" className="flex-1 outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent" />
+              </div>
+              {phoneTouched && !phoneValid ? (
+                <p className="text-sm text-red-500 mt-2">Please enter a valid Malaysian mobile number (e.g. 012-3456789).</p>
+              ) : (
+                <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">A valid Malaysian mobile number is required to confirm your booking.</p>
+              )}
+              <div className="mt-12 flex space-x-4">
+                <button onClick={() => setStep(1)} className="px-6 py-4 rounded-full font-medium text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 w-1/3">Back</button>
+                <button onClick={() => { setPhoneTouched(true); if (phoneValid) setStep(3); }} className="flex-1 py-4 rounded-full font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-lg disabled:opacity-50 disabled:shadow-none flex items-center justify-center">Continue</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4">
+              {stylists.map((sty) => {
+                const isSelected = selectedStylist?.id === sty.id;
+                return (
+                  <button key={sty.id} onClick={() => { setSelectedStylist(sty); setSelectedTime(null); setStep(4); }}
+                    className={cn("w-full bg-white dark:bg-slate-800 rounded-2xl p-5 border shadow-sm flex items-center space-x-4 transition-colors",
+                      isSelected ? "border-slate-900 dark:border-white bg-slate-50 dark:bg-slate-700" : "border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600")}>
+                    <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-200 font-medium text-lg">{sty.name.charAt(0)}</div>
+                    <div className="flex-1 text-left">
+                      <h3 className="font-medium text-slate-900 dark:text-white">{sty.name}</h3>
+                      {sty.specialties && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{sty.specialties}</p>}
+                    </div>
+                    {isSelected && <Check className="w-5 h-5 text-slate-900 dark:text-white shrink-0" />}
+                  </button>
+                );
+              })}
+              <div className="pt-4">
+                <button onClick={() => setStep(2)} className="px-6 py-4 rounded-full font-medium text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800">Back</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-slate-900 mb-3 uppercase tracking-wide">Date</h3>
+                <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Date</h3>
                 <div className="flex space-x-3 overflow-x-auto pb-4 scrollbar-hide">
                   {dates.map((d, i) => {
                     const isSelected = format(selectedDate, 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd');
                     return (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedDate(d)}
-                        className={cn(
-                          "flex flex-col items-center justify-center w-16 h-20 rounded-2xl shrink-0 transition-colors border",
-                          isSelected 
-                            ? "bg-slate-900 text-white border-slate-900" 
-                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
-                        )}
-                      >
+                      <button key={i} onClick={() => { setSelectedDate(d); setSelectedTime(null); }}
+                        className={cn("flex flex-col items-center justify-center w-16 h-20 rounded-2xl shrink-0 transition-colors border",
+                          isSelected ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white border-slate-900 dark:border-white" : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600")}>
                         <span className="text-xs uppercase font-medium opacity-80 mb-1">{format(d, 'EEE')}</span>
                         <span className="text-xl font-light">{format(d, 'd')}</span>
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-slate-900 mb-3 uppercase tracking-wide">Available Times</h3>
+                <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Available Times</h3>
                 <div className="grid grid-cols-3 gap-3">
-                  {TIME_SLOTS.map(t => {
+                  {timeSlots.map((t) => {
+                    const isBooked = bookedSlots.includes(t);
                     const isSelected = selectedTime === t;
                     return (
-                      <button
-                        key={t}
-                        onClick={() => setSelectedTime(t)}
-                        className={cn(
-                          "py-3 rounded-xl text-sm font-medium transition-colors border",
-                          isSelected
-                            ? "bg-slate-900 text-white border-slate-900"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
-                        )}
-                      >
+                      <button key={t} onClick={() => { if (!isBooked) setSelectedTime(t); }} disabled={isBooked}
+                        className={cn("py-3 rounded-xl text-sm font-medium transition-colors border relative overflow-hidden",
+                          isSelected ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white border-slate-900 dark:border-white"
+                            : isBooked ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-not-allowed line-through decoration-slate-300 dark:decoration-slate-600"
+                              : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600")}>
                         {t}
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
 
-              <div className="mt-12 flex space-x-4">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-6 py-4 rounded-full font-medium text-slate-600 bg-slate-200 w-1/3"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleBook}
-                  disabled={!selectedTime || booking}
-                  className="flex-1 py-4 rounded-full font-medium text-white bg-slate-900 shadow-lg disabled:opacity-50 disabled:shadow-none flex items-center justify-center"
-                >
+              <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
+                <span>{normalizeMalaysianMobile(phone)}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStylist?.name}</span>
+              </div>
+
+              <div className="mt-6 flex space-x-4">
+                <button onClick={() => setStep(3)} className="px-6 py-4 rounded-full font-medium text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 w-1/3">Back</button>
+                <button onClick={handleBook} disabled={!selectedTime || booking}
+                  className="flex-1 py-4 rounded-full font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-lg disabled:opacity-50 disabled:shadow-none flex items-center justify-center">
                   {booking ? "Confirming..." : "Confirm Booking"}
                 </button>
               </div>

@@ -1,27 +1,33 @@
-export interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
-  photoURL: string | null;
-  role: 'client' | 'admin';
-}
-
 export interface Service {
   id: string;
   name: string;
-  duration: number; // in minutes
+  duration: number;
   price: number;
   description: string;
 }
 
+export interface Stylist {
+  id: string;
+  name: string;
+  specialties: string;
+}
+
+export interface TimeSlot {
+  id: string;
+  time: string;
+  enabled: boolean;
+}
+
 export interface Appointment {
   id: string;
-  clientId: string;
   clientName: string;
+  clientPhone: string;
   serviceId: string;
   serviceName: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm (24h)
+  stylistId: string;
+  stylistName: string;
+  date: string;
+  time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  notes?: string;
+  createdAt: string;
 }
