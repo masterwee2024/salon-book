@@ -1,17 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, ensureSchema, seed } from "./_lib/db.js";
-import { ok, badRequest } from "./_lib/response.js";
+import { getDb } from "../_lib/db.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  await ensureSchema();
-  await seed();
-
+export async function handleAvailability(req: VercelRequest, res: VercelResponse) {
   const { date, stylistId } = req.query as { date?: string; stylistId?: string };
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? ""))
-    return badRequest(res, "Invalid date.");
+    return res.status(400).json({ error: "Invalid date." });
   if (!stylistId)
-    return badRequest(res, "stylistId is required.");
+    return res.status(400).json({ error: "stylistId is required." });
 
   const db = getDb();
   const result = await db.execute({
@@ -19,5 +15,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     args: [date!, stylistId!],
   });
   const bookedSlots = result.rows.map((r) => r.time as string);
-  return ok(res, { bookedSlots });
+  return res.status(200).json({ bookedSlots });
 }
