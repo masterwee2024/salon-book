@@ -131,22 +131,54 @@ export function buildICS(
   return lines.map(foldICSLine).join("\r\n");
 }
 
-/** Trigger download of the ICS file. Returns false if blocked. */
+/** Trigger download/open of the ICS file. Works on desktop + iOS Safari. */
 export function downloadICS(
   appointment: Appointment,
   opts?: { durationMinutes?: number; location?: string; filename?: string }
 ): void {
   const ics = buildICS(appointment, opts);
-  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
   const filename =
     opts?.filename ?? `vogue-salon-${appointment.date}-${appointment.time}.ics`;
+
+  // iOS Safari / PWA doesn't support <a download> for blob: URLs — it needs
+  // the file opened in a new tab so the system shows "Add to Calendar".
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && (navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints > 1);
+  const isStandalone =
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true;
+
+  if (isIOS || isStandalone) {
+    // Blob URL opened in a new tab triggers the iOS preview sheet with
+    // "Add All" → Apple Calendar. data: URI would lose the .ics hint.
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    // window.open must be called synchronously inside the click handler
+    // or it will be blocked as a popup.
+    const win = window.open(url, "_blank");
+    if (!win) {
+      // Fallback for popup blockers — navigate in place (user can back).
+      window.location.href = url;
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    return;
+  }
+
+  // Desktop / Android — anchor with download attribute (Chrome, Edge, Firefox, macOS Safari).
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  // Append to DOM required for Firefox.
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  // Delay revoke so download has time to start (Safari needs it).
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  // Cleanup after the browser has started the download.
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 4000);
 }
