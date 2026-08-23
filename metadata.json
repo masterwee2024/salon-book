@@ -1,0 +1,6 @@
+{
+  "name": "Lumière Salon Booking",
+  "description": "A sleek mobile-first booking app for Lumière Salon with real-time scheduling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
