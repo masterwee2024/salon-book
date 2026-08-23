@@ -5,6 +5,7 @@ import { getAppointments, cancelAppointment } from "../lib/api";
 import { format, parseISO } from "date-fns";
 import { Calendar, Clock, MapPin, X } from "lucide-react";
 import { motion } from "motion/react";
+import { AddToCalendar } from "../components/AddToCalendar";
 
 export function Home({ onBook }: { onBook: () => void }) {
   const { phone, name } = useSession();
@@ -80,6 +81,7 @@ export function Home({ onBook }: { onBook: () => void }) {
                         <span>{appt.time}</span>
                       </div>
                     </div>
+                    <AddToCalendar appointment={appt} variant="compact" />
                   </motion.div>
                 ))}
               </div>

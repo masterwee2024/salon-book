@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSession } from "../components/SessionProvider";
-import { Service, Stylist } from "../types";
+import { Appointment, Service, Stylist } from "../types";
 import { getServices, getStylists, getAvailability, getTimeSlots, createAppointment } from "../lib/api";
-import { format, addDays, startOfToday } from "date-fns";
-import { Clock, Phone, Check, User } from "lucide-react";
+import { format, addDays, startOfToday, parseISO } from "date-fns";
+import { Clock, Phone, Check, User, CalendarCheck, Calendar } from "lucide-react";
 import { cn, isValidMalaysianMobile, normalizeMalaysianMobile } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
+import { AddToCalendar } from "../components/AddToCalendar";
 
 const TIME_SLOTS_FALLBACK = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
@@ -14,7 +15,8 @@ export function Book({ onBooked }: { onBooked: () => void }) {
   const [services, setServices] = useState<Service[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>(TIME_SLOTS_FALLBACK);
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [bookedAppointment, setBookedAppointment] = useState<Appointment | null>(null);
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [clientName, setClientName] = useState(sessionName ?? "");
@@ -42,8 +44,8 @@ export function Book({ onBooked }: { onBooked: () => void }) {
   const phoneValid = isValidMalaysianMobile(phone);
   const nameValid = clientName.trim().length >= 2;
 
-  const titles: Record<number, string> = { 1: "Select Service", 2: "Your Contact", 3: "Choose Stylist", 4: "Pick a Time" };
-  const subtitles: Record<number, string> = { 1: "What can we do for you today?", 2: selectedService?.name ?? "", 3: selectedService?.name ?? "", 4: `${selectedStylist?.name ?? ""} · ${selectedService?.name ?? ""}` };
+  const titles: Record<number, string> = { 1: "Select Service", 2: "Your Contact", 3: "Choose Stylist", 4: "Pick a Time", 5: "Booking Confirmed" };
+  const subtitles: Record<number, string> = { 1: "What can we do for you today?", 2: selectedService?.name ?? "", 3: selectedService?.name ?? "", 4: `${selectedStylist?.name ?? ""} · ${selectedService?.name ?? ""}`, 5: bookedAppointment ? `${bookedAppointment.serviceName} · ${format(parseISO(bookedAppointment.date), 'MMM d, yyyy')} at ${bookedAppointment.time}` : "" };
 
   const handleBook = async () => {
     if (!nameValid || !phoneValid || !selectedService || !selectedStylist || !selectedTime) {
@@ -52,9 +54,10 @@ export function Book({ onBooked }: { onBooked: () => void }) {
     }
     setBooking(true);
     try {
-      await createAppointment({ clientName: clientName.trim(), clientPhone: phone, serviceId: selectedService.id, stylistId: selectedStylist.id, date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime });
+      const appt = await createAppointment({ clientName: clientName.trim(), clientPhone: phone, serviceId: selectedService.id, stylistId: selectedStylist.id, date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime });
       setSession(normalizeMalaysianMobile(phone), clientName.trim());
-      onBooked();
+      setBookedAppointment(appt);
+      setStep(5);
     } catch (e) { alert(e instanceof Error ? e.message : "Error booking appointment."); }
     finally { setBooking(false); }
   };
@@ -197,6 +200,38 @@ export function Book({ onBooked }: { onBooked: () => void }) {
                   {booking ? "Confirming..." : "Confirm Booking"}
                 </button>
               </div>
+            </motion.div>
+          )}
+
+          {step === 5 && bookedAppointment && (
+            <motion.div key="s5" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-6">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm text-center">
+                <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                  <CalendarCheck className="w-7 h-7 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white">You&apos;re booked!</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                  {bookedAppointment.serviceName} with {bookedAppointment.stylistName}<br />
+                  {format(parseISO(bookedAppointment.date), 'EEEE, MMMM d, yyyy')} at {bookedAppointment.time}
+                </p>
+                <div className="flex items-center justify-center gap-2 mt-3 text-xs text-slate-400 dark:text-slate-500">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Vogue Salon · Kuching</span>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm">
+                <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-1">Add to your calendar</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Get a reminder and never miss your appointment.</p>
+                <AddToCalendar appointment={bookedAppointment} durationMinutes={selectedService?.duration} />
+              </div>
+
+              <button
+                onClick={onBooked}
+                className="w-full py-4 rounded-full font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-lg"
+              >
+                Done — View My Bookings
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
