@@ -3,20 +3,22 @@ import { useSession } from "../components/SessionProvider";
 import { Service, Stylist } from "../types";
 import { getServices, getStylists, getAvailability, getTimeSlots, createAppointment } from "../lib/api";
 import { format, addDays, startOfToday } from "date-fns";
-import { Clock, Phone, Check } from "lucide-react";
+import { Clock, Phone, Check, User } from "lucide-react";
 import { cn, isValidMalaysianMobile, normalizeMalaysianMobile } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
 const TIME_SLOTS_FALLBACK = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
 export function Book({ onBooked }: { onBooked: () => void }) {
-  const { phone: sessionPhone, setSession } = useSession();
+  const { phone: sessionPhone, name: sessionName, setSession } = useSession();
   const [services, setServices] = useState<Service[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>(TIME_SLOTS_FALLBACK);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [clientName, setClientName] = useState(sessionName ?? "");
+  const [nameTouched, setNameTouched] = useState(false);
   const [phone, setPhone] = useState(sessionPhone ?? "");
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
@@ -38,16 +40,20 @@ export function Book({ onBooked }: { onBooked: () => void }) {
 
   const dates = Array.from({ length: 14 }).map((_, i) => addDays(startOfToday(), i));
   const phoneValid = isValidMalaysianMobile(phone);
+  const nameValid = clientName.trim().length >= 2;
 
   const titles: Record<number, string> = { 1: "Select Service", 2: "Your Contact", 3: "Choose Stylist", 4: "Pick a Time" };
   const subtitles: Record<number, string> = { 1: "What can we do for you today?", 2: selectedService?.name ?? "", 3: selectedService?.name ?? "", 4: `${selectedStylist?.name ?? ""} · ${selectedService?.name ?? ""}` };
 
   const handleBook = async () => {
-    if (!phoneValid || !selectedService || !selectedStylist || !selectedTime) { if (!phoneValid) setStep(2); return; }
+    if (!nameValid || !phoneValid || !selectedService || !selectedStylist || !selectedTime) {
+      if (!nameValid || !phoneValid) setStep(2);
+      return;
+    }
     setBooking(true);
     try {
-      await createAppointment({ clientPhone: phone, serviceId: selectedService.id, stylistId: selectedStylist.id, date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime });
-      setSession(normalizeMalaysianMobile(phone));
+      await createAppointment({ clientName: clientName.trim(), clientPhone: phone, serviceId: selectedService.id, stylistId: selectedStylist.id, date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime });
+      setSession(normalizeMalaysianMobile(phone), clientName.trim());
       onBooked();
     } catch (e) { alert(e instanceof Error ? e.message : "Error booking appointment."); }
     finally { setBooking(false); }
@@ -81,20 +87,32 @@ export function Book({ onBooked }: { onBooked: () => void }) {
           )}
 
           {step === 2 && (
-            <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Mobile Number</label>
-              <div className={cn("flex items-center space-x-3 bg-white dark:bg-slate-800 rounded-2xl border shadow-sm px-4 py-4", phoneTouched && !phoneValid ? "border-red-400" : "border-slate-100 dark:border-slate-700")}>
-                <Phone className="w-5 h-5 text-slate-400 shrink-0" />
-                <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => setPhoneTouched(true)} placeholder="012-3456789" className="flex-1 outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent" />
+            <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Full Name</label>
+                <div className={cn("flex items-center space-x-3 bg-white dark:bg-slate-800 rounded-2xl border shadow-sm px-4 py-4", nameTouched && !nameValid ? "border-red-400" : "border-slate-100 dark:border-slate-700")}>
+                  <User className="w-5 h-5 text-slate-400 shrink-0" />
+                  <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} onBlur={() => setNameTouched(true)} placeholder="Your name" className="flex-1 outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent" />
+                </div>
+                {nameTouched && !nameValid && (
+                  <p className="text-sm text-red-500 mt-2">Please enter your name (at least 2 characters).</p>
+                )}
               </div>
-              {phoneTouched && !phoneValid ? (
-                <p className="text-sm text-red-500 mt-2">Please enter a valid Malaysian mobile number (e.g. 012-3456789).</p>
-              ) : (
-                <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">A valid Malaysian mobile number is required to confirm your booking.</p>
-              )}
-              <div className="mt-12 flex space-x-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-3 uppercase tracking-wide">Mobile Number</label>
+                <div className={cn("flex items-center space-x-3 bg-white dark:bg-slate-800 rounded-2xl border shadow-sm px-4 py-4", phoneTouched && !phoneValid ? "border-red-400" : "border-slate-100 dark:border-slate-700")}>
+                  <Phone className="w-5 h-5 text-slate-400 shrink-0" />
+                  <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => setPhoneTouched(true)} placeholder="012-3456789" className="flex-1 outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent" />
+                </div>
+                {phoneTouched && !phoneValid ? (
+                  <p className="text-sm text-red-500 mt-2">Please enter a valid Malaysian mobile number (e.g. 012-3456789).</p>
+                ) : (
+                  <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">A valid Malaysian mobile number is required to confirm your booking.</p>
+                )}
+              </div>
+              <div className="flex space-x-4 pt-2">
                 <button onClick={() => setStep(1)} className="px-6 py-4 rounded-full font-medium text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 w-1/3">Back</button>
-                <button onClick={() => { setPhoneTouched(true); if (phoneValid) setStep(3); }} className="flex-1 py-4 rounded-full font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-lg disabled:opacity-50 disabled:shadow-none flex items-center justify-center">Continue</button>
+                <button onClick={() => { setNameTouched(true); setPhoneTouched(true); if (nameValid && phoneValid) setStep(3); }} className="flex-1 py-4 rounded-full font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-lg disabled:opacity-50 disabled:shadow-none flex items-center justify-center">Continue</button>
               </div>
             </motion.div>
           )}

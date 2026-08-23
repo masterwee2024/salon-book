@@ -119,10 +119,16 @@ export function AppointmentsTab() {
         <div className="space-y-3">
           {selectedAppointments.map((appointment) => (
             <div key={appointment.id} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <div className="w-14 shrink-0 text-center"><p className="text-sm font-medium text-slate-900 dark:text-white">{appointment.time}</p><p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">{appointment.status}</p></div>
+              <div className="w-14 shrink-0 text-center"><p className="text-sm font-medium text-slate-900 dark:text-white">{appointment.time}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">{appointment.status}</p></div>
               <div className="h-10 w-px bg-slate-100 dark:bg-slate-700" />
-              <div className="min-w-0 flex-1"><p className="truncate font-medium text-slate-900 dark:text-white">{appointment.clientName}</p><p className="truncate text-sm text-slate-500 dark:text-slate-400">{appointment.serviceName}</p></div>
-              <div className="hidden items-center gap-1 text-xs text-slate-400 dark:text-slate-500 sm:flex"><Phone className="h-3.5 w-3.5" />{appointment.clientPhone}</div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-slate-900 dark:text-white">{appointment.clientName}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                  <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3 shrink-0" />{appointment.clientPhone}</span>
+                  <span className="text-slate-300 dark:text-slate-600">·</span>
+                  <span className="truncate">{appointment.serviceName}</span>
+                </p>
+              </div>
               <Clock className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
             </div>
           ))}
