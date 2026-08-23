@@ -1,9 +1,5 @@
 {
   "buildCommand": "vite build",
   "outputDirectory": "dist",
-  "framework": "vite",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/api/(.*)", "dest": "/api/[...slug]" }
-  ]
+  "framework": "vite"
 }
